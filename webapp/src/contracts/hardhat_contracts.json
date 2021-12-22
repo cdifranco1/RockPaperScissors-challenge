@@ -1,0 +1,41 @@
+{
+  "1337": {
+    "localhost": {
+      "name": "localhost",
+      "chainId": "1337",
+      "contracts": {
+        "Game": {
+          "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PlayerMove",
+                  "name": "move",
+                  "type": "uint8"
+                }
+              ],
+              "name": "addPlayerMove",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_wager",
+                  "type": "uint256"
+                }
+              ],
+              "name": "joinGame",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
