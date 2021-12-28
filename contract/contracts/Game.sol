@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "hardhat/console.sol";
 
 enum Move {
-    NoMove,
     Rock,
     Paper,
     Scissor
@@ -42,7 +41,7 @@ contract Game {
     GameState public gameState;
 
     mapping(address => Move[]) playerMoves;
-    mapping(address => uint16) playerScores;
+    mapping(address => uint16) public playerScores;
 
     event MovesSelected(Move player1Move, Move player2Move, uint8 round);
     event RoundScored(uint16 player1Score, uint16 player2Score);
@@ -56,6 +55,7 @@ contract Game {
     }
 
     function joinGame(uint _wager) public {
+        console.log("%s is joining game", msg.sender);
         if (player1 == address(0)) {
             player1 = msg.sender;
             gameWager = _wager;
@@ -69,13 +69,11 @@ contract Game {
     function addPlayerMove(Move move) public {
         require(gameState == GameState.Active, "Game is not ready to accept moves");
         playerMoves[msg.sender].push(move);
+        address otherPlayer = getOtherPlayer(msg.sender);
 
-        Move player1Move = playerMoves[player1][currentRound]; 
-        Move player2Move = playerMoves[player2][currentRound];
-        console.log("Player 1 move: ", player1,  uint(player1Move));
-        console.log("Player 2 move: ", player2, uint(player2Move));
-        console.log("Current Round: ", currentRound);
-        if (player1Move != Move.NoMove && player2Move != Move.NoMove) {
+        if (playerMoves[msg.sender].length == currentRound + 1 && playerMoves[otherPlayer].length == currentRound + 1) {
+            Move player1Move = playerMoves[player1][currentRound]; 
+            Move player2Move = playerMoves[player2][currentRound];
             address roundWinner = selectRoundWinner(player1Move, player2Move);
             if (roundWinner != address(0)) {
                 playerScores[roundWinner] += 1;
@@ -88,27 +86,66 @@ contract Game {
         }
     }
 
+
+    function getOtherPlayer(address currentPlayer) internal view returns(address) {
+        if (currentPlayer == player1) {
+            return player2;
+        } else if (currentPlayer == player2) {
+            return player1;
+        } else {
+            return address(0);
+        }
+    }
+
     function startGame() external {
         require(player1 != address(0) && player2 != address(0), "Players have not been assigned yet");
         gameState = GameState.Active;
     }
 
     function getPlayerMove(address _player) public view returns(Move) {
-        uint latestRound = Math.max(0, currentRound - 1);
+        uint latestRound;
 
-        console.log("Latest round", latestRound);
-        console.log("Current round", currentRound);
+        if (currentRound > 0) {
+            latestRound = currentRound - 1;
+        } else {
+            latestRound == 0;
+        }
+
         return playerMoves[_player][latestRound];
     }
 
+    function getPlayerScore(address _player) public view returns(uint16) {
+        return playerScores[_player];
+    }
+
     function selectRoundWinner(Move _player1Move, Move _player2Move) internal view returns(address) {
-        if (_player1Move > _player2Move) {
-            return player1;
-        } else if (_player2Move > _player1Move) {
-            return player2;
-        } else {
-            return address(0);
+        if (_player1Move == Move.Rock) {
+            if (_player2Move == Move.Rock) {
+                return address(0);
+            } else if (_player2Move == Move.Paper) {
+                return player2;
+            } else if (_player2Move == Move.Scissor) {
+                return player1;
+            }
+        } else if (_player1Move == Move.Paper) {
+            if (_player2Move == Move.Paper) {
+                return address(0);
+            } else if (_player2Move == Move.Scissor) {
+                return player2;
+            } else if (_player2Move == Move.Rock) {
+                return player1;
+            }
+        } else if (_player1Move == Move.Scissor) {
+            if (_player2Move == Move.Scissor) {
+                return address(0);
+            } else if (_player2Move == Move.Rock) {
+                return player2;
+            } else if (_player2Move == Move.Paper) {
+                return player1;
+            }
         }
+
+        return address(0);
     }
 
     function isGameWinner(address _roundWinner) internal view returns(bool) {
