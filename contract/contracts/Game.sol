@@ -1,14 +1,21 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
-
 import "./TestToken.sol";
+
+import "@openzeppelin/contracts/utils/math/Math.sol";
 import "hardhat/console.sol";
 
-enum PlayerMove {
+enum Move {
     NoMove,
     Rock,
     Paper,
     Scissor
+}
+
+enum GameState {
+    Uninitialized,
+    Active,
+    Completed
 }
 
 // interface COMP {
@@ -25,16 +32,27 @@ interface TST {
 
 contract Game {
 
-    uint gameWager;
+    uint public gameWager;
 
-    address player1;
-    address player2;
+    address public player1;
+    address public player2;
 
-    mapping(address => PlayerMove[]) playerMoves;
+    uint public currentRound;
 
-    modifier isInGame(address _player) {
-        require(player1 == _player || player2 == _player, "Player is not in game");
-        _;
+    GameState public gameState;
+
+    mapping(address => Move[]) playerMoves;
+    mapping(address => uint16) playerScores;
+
+    event MovesSelected(Move player1Move, Move player2Move, uint8 round);
+    event RoundScored(uint16 player1Score, uint16 player2Score);
+
+    event GameWon(address indexed winner);
+    
+    event GameWinner(address winner);
+
+    function getGameWager() public view returns(uint) {
+        return gameWager;
     }
 
     function joinGame(uint _wager) public {
@@ -48,12 +66,67 @@ contract Game {
         }
     }
 
-
-    function addPlayerMove(PlayerMove move) public {
+    function addPlayerMove(Move move) public {
+        require(gameState == GameState.Active, "Game is not ready to accept moves");
         playerMoves[msg.sender].push(move);
+
+        Move player1Move = playerMoves[player1][currentRound]; 
+        Move player2Move = playerMoves[player2][currentRound];
+        console.log("Player 1 move: ", player1,  uint(player1Move));
+        console.log("Player 2 move: ", player2, uint(player2Move));
+        console.log("Current Round: ", currentRound);
+        if (player1Move != Move.NoMove && player2Move != Move.NoMove) {
+            address roundWinner = selectRoundWinner(player1Move, player2Move);
+            if (roundWinner != address(0)) {
+                playerScores[roundWinner] += 1;
+                if (isGameWinner(roundWinner)) {
+                    emit GameWon(roundWinner);
+                    gameState = GameState.Completed;
+                }
+            }
+            currentRound += 1;
+        }
     }
 
-    
+    function startGame() external {
+        require(player1 != address(0) && player2 != address(0), "Players have not been assigned yet");
+        gameState = GameState.Active;
+    }
+
+    function getPlayerMove(address _player) public view returns(Move) {
+        uint latestRound = Math.max(0, currentRound - 1);
+
+        console.log("Latest round", latestRound);
+        console.log("Current round", currentRound);
+        return playerMoves[_player][latestRound];
+    }
+
+    function selectRoundWinner(Move _player1Move, Move _player2Move) internal view returns(address) {
+        if (_player1Move > _player2Move) {
+            return player1;
+        } else if (_player2Move > _player1Move) {
+            return player2;
+        } else {
+            return address(0);
+        }
+    }
+
+    function isGameWinner(address _roundWinner) internal view returns(bool) {
+        uint16 roundWinnerScore = playerScores[_roundWinner];
+        address challenger;
+
+        if (_roundWinner == player1) {
+            challenger = player2;
+        } else {
+            challenger == player1;
+        }
+
+        if (roundWinnerScore >= 2 && roundWinnerScore - playerScores[challenger] >= 1) {
+            return true;
+        }
+
+        return false;
+    }
 
 }
 

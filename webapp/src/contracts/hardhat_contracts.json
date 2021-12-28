@@ -8,9 +8,79 @@
           "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           "abi": [
             {
+              "anonymous": false,
               "inputs": [
                 {
-                  "internalType": "enum PlayerMove",
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "winner",
+                  "type": "address"
+                }
+              ],
+              "name": "GameWinner",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "winner",
+                  "type": "address"
+                }
+              ],
+              "name": "GameWon",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum Move",
+                  "name": "player1Move",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum Move",
+                  "name": "player2Move",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "round",
+                  "type": "uint8"
+                }
+              ],
+              "name": "MovesSelected",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint16",
+                  "name": "player1Score",
+                  "type": "uint16"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint16",
+                  "name": "player2Score",
+                  "type": "uint16"
+                }
+              ],
+              "name": "RoundScored",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum Move",
                   "name": "move",
                   "type": "uint8"
                 }
@@ -18,6 +88,77 @@
               "name": "addPlayerMove",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "currentRound",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "gameState",
+              "outputs": [
+                {
+                  "internalType": "enum GameState",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "gameWager",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getGameWager",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_player",
+                  "type": "address"
+                }
+              ],
+              "name": "getPlayerMove",
+              "outputs": [
+                {
+                  "internalType": "enum Move",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -29,6 +170,39 @@
                 }
               ],
               "name": "joinGame",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "player1",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "player2",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "startGame",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
