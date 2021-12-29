@@ -150,13 +150,7 @@ contract Game {
 
     function isGameWinner(address _roundWinner) internal view returns(bool) {
         uint16 roundWinnerScore = playerScores[_roundWinner];
-        address challenger;
-
-        if (_roundWinner == player1) {
-            challenger = player2;
-        } else {
-            challenger == player1;
-        }
+        address challenger = getOtherPlayer(_roundWinner);
 
         if (roundWinnerScore >= 2 && roundWinnerScore - playerScores[challenger] >= 1) {
             return true;
